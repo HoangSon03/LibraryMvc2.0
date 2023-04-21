@@ -1,0 +1,94 @@
+﻿@model Library.ViewModel.ItemViewModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<form asp-controller="Items" asp-action="Index" method="get">
+    <p>
+
+      Category :<select asp-for="ItemCategory" asp-items="Model.Categories">
+            <option value="">All</option>
+        </select>
+
+      PublicYear : <select asp-for="ItemYear" asp-items="Model.Years">
+            <option value="">All</option>
+        </select>
+
+      Title: <input type="text" asp-for="ItemSearch" />
+        <input type="submit" value="Filter" />
+    </p>
+</form>
+
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Items![0].Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Items![0].Author)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Items![0].PublishDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Items![0].RunTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Items![0].NumOfPage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Items![0].Quantity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Items![0].Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Items![0].Category)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model!.Items!) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Author)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PublishDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RunTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NumOfPage)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Quantity)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Category)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
