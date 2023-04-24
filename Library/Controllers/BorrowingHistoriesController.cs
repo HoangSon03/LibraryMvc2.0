@@ -63,9 +63,11 @@ namespace Library.Controllers
         public IActionResult Create()
         {
             ViewData["BorrowerId"] = new SelectList(_borrower.GetAll(), "Id", "Name");
-            ViewData["ItemId"] = new SelectList(_item.GetAll(), "Id", "Title");
-
-            return View();
+            var ListItem = _item.GetAll();
+            var HistoryVM = new HistoryViewModel();
+            HistoryVM.ListItem = ListItem.ToList();
+           
+            return View(HistoryVM);
         }
 
         // POST: BorrowingHistories/Create
@@ -87,24 +89,24 @@ namespace Library.Controllers
                 int CountItemQuantity = 0;
                 decimal TotalCost = 0;
 
-                foreach (int item in HistoryVM.ListItemId!)
-                {
-                    var SelectedItem = await _item.Get(item);
-                    SelectedItem.Quantity = SelectedItem.Quantity - 1;
-                    await _item.Update(SelectedItem);
+                //foreach (int item in HistoryVM.ListItemId)
+                //    {
+                //    var SelectedItem = await _item.Get(item);
+                //    SelectedItem.Quantity = SelectedItem.Quantity - 1;
+                //    await _item.Update(SelectedItem);
 
-                    var borrowDetail = new BorrowingDetail();
-                    borrowDetail.BorrowingHistoryId = borrowing.Id;
-                    borrowDetail.ItemId = item;
-                    borrowDetail.Quantity = 1;
-                    borrowDetail.Cost = SelectedItem.Price * borrowDetail.Quantity;
-                    borrowDetail.ReturnDate = null;
-                    await _detail.Create(borrowDetail);
+                //    var borrowDetail = new BorrowingDetail();
+                //    borrowDetail.BorrowingHistoryId = borrowing.Id;
+                //    borrowDetail.ItemId = item;
+                //    borrowDetail.Quantity = 1;
+                //    borrowDetail.Cost = SelectedItem.Price * borrowDetail.Quantity;
+                //    borrowDetail.ReturnDate = null;
+                //    await _detail.Create(borrowDetail);
 
-                    CountItem++;
-                    CountItemQuantity += borrowDetail.Quantity;
-                    TotalCost += borrowDetail.Cost;
-                }
+                //    CountItem++;
+                //    CountItemQuantity += borrowDetail.Quantity;
+                //    TotalCost += borrowDetail.Cost;
+                //}
                 borrowing.TotalCost = TotalCost;
                 borrowing.CountItem = CountItem;
                 borrowing.CountItemQuantity = CountItemQuantity;
@@ -113,8 +115,9 @@ namespace Library.Controllers
                 return RedirectToAction(nameof(Index));
 
             }
+            var ListItem = _item.GetAll();
+            HistoryVM.ListItem = ListItem.ToList();
             ViewData["BorrowerId"] = new SelectList(_borrower.GetAll(), "Id", "Name");
-            ViewData["ItemId"] = new SelectList(_item.GetAll(), "Id", "Title");
 
             return View(HistoryVM);
         }

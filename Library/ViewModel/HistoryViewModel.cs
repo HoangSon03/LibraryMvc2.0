@@ -6,7 +6,10 @@ namespace Library.ViewModel
 {
     public class HistoryViewModel
     {
-        public List<int>? ListItemId { get; set; }
+        public List<Item>? ListItem { get; set; }
+        public List<int>? ListSelectItem { get; set; }
+
         public int BorrowerId { get; set; }
+        public int BorrowQuantity { get; set; }
     }
 }
