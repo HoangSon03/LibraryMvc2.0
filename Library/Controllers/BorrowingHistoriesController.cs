@@ -133,7 +133,7 @@ namespace Library.Controllers
             DetailVM.BorrowingDetail = borrowingDetail.ToList();
             DetailVM.Borrower = borrowingHistory.Borrower;
             DetailVM.BorrowDate = borrowingHistory.BorrowDate;
-
+            DetailVM.BorrowingHistory = borrowingHistory;
             if (DetailVM == null)
             {
                 return NotFound();

@@ -13,13 +13,13 @@ namespace Library.Data
             : base(options)
         {
         }
-        public DbSet<Library.Models.Item> Item { get; set; } = default!;
+        public DbSet<Item> Item { get; set; } = default!;
 
-        public DbSet<Library.Models.Borrower>? Borrower { get; set; }
+        public DbSet<Borrower> Borrower { get; set; }
 
-        public DbSet<Library.Models.BorrowingHistory>? BorrowingHistory { get; set; }
+        public DbSet<BorrowingHistory> BorrowingHistory { get; set; }
 
-        public DbSet<Library.Models.BorrowingDetail>? BorrowingDetail { get; set; }
+        public DbSet<BorrowingDetail> BorrowingDetail { get; set; }
 
     }
 }

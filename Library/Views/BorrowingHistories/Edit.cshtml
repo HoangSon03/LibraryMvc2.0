@@ -23,6 +23,12 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.BorrowDate)
         </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.BorrowingHistory.TotalCost)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.BorrowingHistory.TotalCost)
+        </dd>
     </dl>
 </div>
 
@@ -57,7 +63,9 @@
                     @Html.DisplayFor(modelItem => item.ReturnDate)
                 </td>
                 <td>
-                    <input type="submit" value="Return Item" class="btn btn-primary" />
+                    @if(item.ReturnDate == null||item.ReturnDate.ToString() == ""){
+                        <input type="submit" value="Return Item" class="btn btn-primary" />
+                    }
                     <input type="hidden" asp-for="DetailId" value="@item.Id" />
                     <input type="hidden" asp-for="ItemId" value="@item.ItemId" />
                 </td>
