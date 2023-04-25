@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Library.Migrations
 {
     [DbContext(typeof(LibraryContext))]
-    [Migration("20230418084909_InitUpdate")]
-    partial class InitUpdate
+    [Migration("20230425072033_InitCreate")]
+    partial class InitCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -36,6 +36,7 @@ namespace Library.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -63,6 +64,9 @@ namespace Library.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("ReturnDate")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BorrowingHistoryId");
@@ -80,8 +84,23 @@ namespace Library.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<DateTime>("BorrowDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("BorrowerId")
                         .HasColumnType("int");
+
+                    b.Property<int?>("CountItem")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CountItemQuantity")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("TotalCost")
+                        .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
@@ -99,9 +118,10 @@ namespace Library.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Author")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Category")
+                    b.Property<int>("Category")
                         .HasColumnType("int");
 
                     b.Property<int?>("NumOfPage")
@@ -120,6 +140,7 @@ namespace Library.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -130,13 +151,13 @@ namespace Library.Migrations
             modelBuilder.Entity("Library.Models.BorrowingDetail", b =>
                 {
                     b.HasOne("Library.Models.BorrowingHistory", "BorrowingHistory")
-                        .WithMany()
+                        .WithMany("BorrowingDetails")
                         .HasForeignKey("BorrowingHistoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Library.Models.Item", "Item")
-                        .WithMany()
+                        .WithMany("BorrowingDetails")
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -155,6 +176,16 @@ namespace Library.Migrations
                         .IsRequired();
 
                     b.Navigation("Borrower");
+                });
+
+            modelBuilder.Entity("Library.Models.BorrowingHistory", b =>
+                {
+                    b.Navigation("BorrowingDetails");
+                });
+
+            modelBuilder.Entity("Library.Models.Item", b =>
+                {
+                    b.Navigation("BorrowingDetails");
                 });
 #pragma warning restore 612, 618
         }
