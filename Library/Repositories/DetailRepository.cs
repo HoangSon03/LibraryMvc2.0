@@ -17,13 +17,13 @@ namespace Library.Repositories
             _dbset = context.Set<BorrowingDetail>();
         }
 
-        public override async Task DeleteMany(IEnumerable<BorrowingDetail> entity)
+        public  async Task DeleteMany(IEnumerable<BorrowingDetail> entity)
         {
             _dbset.RemoveRange(entity);
             await _context.SaveChangesAsync();
         }
 
-        public override IEnumerable<BorrowingDetail> GetAllById(int id)
+        public  IEnumerable<BorrowingDetail> GetAllById(int id)
         {
             return _dbset.Where(x=>x.BorrowingHistoryId == id ).Include(y=>y.Item).AsEnumerable().OrderByDescending(x => x.Id);
         }

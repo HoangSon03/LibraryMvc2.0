@@ -68,15 +68,15 @@
 
 @section Scripts {
     <script>
-    function onCategoryChanged(category) {
-        if(category=="DVD"){
-            document.getElementById("divDVD").style.display="block";
-            document.getElementById("divBook").style.display="none";
-        }else{
-            document.getElementById("divBook").style.display="block"
-            document.getElementById("divDVD").style.display="none";
+        function onCategoryChanged(category) {
+            if(category=="DVD"){
+                document.getElementById("divDVD").style.display="block";
+                document.getElementById("divBook").style.display="none";
+            }else{
+                document.getElementById("divBook").style.display="block"
+                document.getElementById("divDVD").style.display="none";
+            }
         }
-    }
-</script>
+    </script>
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

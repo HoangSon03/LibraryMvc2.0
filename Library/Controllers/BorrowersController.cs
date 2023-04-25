@@ -10,30 +10,35 @@ using Library.Models;
 using Library.Repositories;
 using System.Runtime.CompilerServices;
 using Library.ViewModel;
+using Library.UnitOfWork;
 
 namespace Library.Controllers
 {
     public class BorrowersController : Controller
     {
-        //private readonly LibraryContext _context;
-        private readonly IGenericRepository<Borrower> _context;
+        //private readonly LibraryContext _unitOfWork.Borrowers;
+        //private readonly IGenericRepository<Borrower> _unitOfWork.Borrowers;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public BorrowersController(IGenericRepository<Borrower> context)
+        public BorrowersController(
+            //IGenericRepository<Borrower> context
+            IUnitOfWork unitOfWork
+            )
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: Borrowers
         public async Task<IActionResult> Index(string BorrowerSearch)
         {
-            //return _context.GetAll() != null ?
-            //            View(_context.GetAll()) :
+            //return _unitOfWork.Borrowers.GetAll() != null ?
+            //            View(_unitOfWork.Borrowers.GetAll()) :
             //            Problem("Entity set 'LibraryContext.Borrower'  is null.");
-            if (_context.GetAll() == null)
+            if (_unitOfWork.Borrowers.GetAll() == null)
             {
                 return Problem("Entity set 'MvcLibraryContext.Item'  is null.");
             }
-            var borrowers = _context.GetAll();
+            var borrowers = _unitOfWork.Borrowers.GetAll();
 
             if (!string.IsNullOrEmpty(BorrowerSearch))
             {
@@ -50,12 +55,12 @@ namespace Library.Controllers
         // GET: Borrowers/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            if (_context.GetAll() == null)
+            if (_unitOfWork.Borrowers.GetAll() == null)
             {
                 return NotFound();
             }
 
-            var borrower = await _context.Get(id);
+            var borrower = await _unitOfWork.Borrowers.Get(id);
             if (borrower == null)
             {
                 return NotFound();
@@ -79,7 +84,7 @@ namespace Library.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _context.Create(borrower);
+                await _unitOfWork.Borrowers.Create(borrower);
                 return RedirectToAction(nameof(Index));
             }
             return View(borrower);
@@ -88,12 +93,12 @@ namespace Library.Controllers
         // GET: Borrowers/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            if (_context.GetAll() == null)
+            if (_unitOfWork.Borrowers.GetAll() == null)
             {
                 return NotFound();
             }
 
-            var borrower = await _context.Get(id);
+            var borrower = await _unitOfWork.Borrowers.Get(id);
             if (borrower == null)
             {
                 return NotFound();
@@ -117,11 +122,11 @@ namespace Library.Controllers
             {
                 try
                 {
-                    await _context.Update(borrower);
+                    await _unitOfWork.Borrowers.Update(borrower);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (_context.Get(borrower.Id) == null)
+                    if (_unitOfWork.Borrowers.Get(borrower.Id) == null)
                     {
                         return NotFound();
                     }
@@ -138,12 +143,12 @@ namespace Library.Controllers
         // GET: Borrowers/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            if (_context.GetAll() == null)
+            if (_unitOfWork.Borrowers.GetAll() == null)
             {
                 return NotFound();
             }
 
-            var borrower = await _context.Get(id);
+            var borrower = await _unitOfWork.Borrowers.Get(id);
             if (borrower == null)
             {
                 return NotFound();
@@ -157,14 +162,14 @@ namespace Library.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.GetAll() == null)
+            if (_unitOfWork.Borrowers.GetAll() == null)
             {
                 return Problem("Entity set 'LibraryContext.Borrower'  is null.");
             }
-            var borrower = await _context.Get(id);
+            var borrower = await _unitOfWork.Borrowers.Get(id);
             if (borrower != null)
             {
-                await _context.Delete(borrower);
+                await _unitOfWork.Borrowers.Delete(borrower);
             }
             return RedirectToAction(nameof(Index));
         }

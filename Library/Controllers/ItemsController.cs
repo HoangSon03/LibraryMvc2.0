@@ -10,33 +10,39 @@ using Library.Models;
 using System.Security.Cryptography.Xml;
 using Library.Repositories;
 using Library.ViewModel;
+using Library.UnitOfWork;
 
 namespace Library.Controllers
 {
     public class ItemsController : Controller
     {
-        private readonly IGenericRepository<Item> _context;
+        //private readonly IGenericRepository<Item> _unitOfWork.Items;
+        private readonly IUnitOfWork _unitOfWork;
 
 
-        public ItemsController(IGenericRepository<Item> context)
+        public ItemsController(
+            //IGenericRepository<Item> context
+            IUnitOfWork unitOfWork
+            )
         {
-            _context = context;
+            //_unitOfWork.Items = context;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: Items
         public async Task<IActionResult> Index(string ItemSearch, string ItemYear, Category? ItemCategory)
         {
-            if (_context.GetAll() == null)
+            if (_unitOfWork.Items.GetAll() == null)
             {
                 return Problem("Entity set 'MvcLibraryContext.Item'  is null.");
             }
-            var CateQuery = _context.GetAll().OrderBy(x => x.Category)
+            var CateQuery = _unitOfWork.Items.GetAll().OrderBy(x => x.Category)
                                              .Select(x => x.Category.ToString()!);
 
-            var YearQuery = _context.GetAll().OrderBy(x => x.PublishDate.Year)
+            var YearQuery = _unitOfWork.Items.GetAll().OrderBy(x => x.PublishDate.Year)
                                              .Select(x => x.PublishDate.Year.ToString()!);
 
-            var items = _context.GetAll();
+            var items = _unitOfWork.Items.GetAll();
 
             if (!string.IsNullOrEmpty(ItemSearch))
             {
@@ -66,12 +72,12 @@ namespace Library.Controllers
         // GET: Items/Details/5
         public async Task<IActionResult> Details(int id)
         {
-            if (_context.GetAll() == null)
+            if (_unitOfWork.Items.GetAll() == null)
             {
                 return NotFound();
             }
 
-            var item = await _context.Get(id);
+            var item = await _unitOfWork.Items.Get(id);
             if (item == null)
             {
                 return NotFound();
@@ -95,27 +101,28 @@ namespace Library.Controllers
         {
             if (ModelState.IsValid)
             {
-               await _context.Create(item);
+               await _unitOfWork.Items.Create(item);
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.CategoryList = new SelectList(Enum.GetValues(typeof(Category)));
             return View(item);
         }
 
         // GET: Items/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
-            if ( _context.GetAll() == null)
+            if ( _unitOfWork.Items.GetAll() == null)
             {
                 return NotFound();
             }
 
-            var item = await _context.Get(id);
+            var item = await _unitOfWork.Items.Get(id);
             if (item == null)
             {
                 return NotFound();
             }
+            ViewBag.CategoryList = new SelectList(Enum.GetValues(typeof(Category)));
             return View(item);
-            //return View();
         }
 
         // POST: Items/Edit/5
@@ -133,11 +140,11 @@ namespace Library.Controllers
             {
                 try
                 {
-                   await _context.Update(item);
+                   await _unitOfWork.Items.Update(item);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (_context.Get(item.Id) == null)
+                    if (_unitOfWork.Items.Get(item.Id) == null)
                     {
                         return NotFound();
                     }
@@ -148,19 +155,19 @@ namespace Library.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.CategoryList = new SelectList(Enum.GetValues(typeof(Category)));
             return View(item);
-            //return View();
         }
 
         // GET: Items/Delete/5
         public async Task<IActionResult> Delete(int id)
         {
-            if ( _context.GetAll() == null)
+            if ( _unitOfWork.Items.GetAll() == null)
             {
                 return NotFound();
             }
 
-            var item = await _context.Get(id);
+            var item = await _unitOfWork.Items.Get(id);
             if (item == null)
             {
                 return NotFound();
@@ -175,14 +182,14 @@ namespace Library.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.GetAll() == null)
+            if (_unitOfWork.Items.GetAll() == null)
             {
                 return Problem("Entity set 'LibraryContext.Item'  is null.");
             }
-            var item = await _context.Get(id);
+            var item = await _unitOfWork.Items.Get(id);
             if (item != null)
             {
-                await _context.Delete(item);
+                await _unitOfWork.Items.Delete(item);
             }
             return RedirectToAction(nameof(Index));
         }

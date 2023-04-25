@@ -5,6 +5,7 @@ using Library.Models;
 using System.ComponentModel;
 using System.Configuration;
 using Library.Repositories;
+using Library.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<LibraryContext>(options =>
@@ -14,10 +15,7 @@ builder.Services.AddDbContext<LibraryContext>(options =>
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-builder.Services.AddScoped(typeof(IGenericRepository<Item>), typeof(ItemRepository));
-builder.Services.AddScoped(typeof(IGenericRepository<BorrowingDetail>), typeof(DetailRepository));
-builder.Services.AddScoped(typeof(IGenericRepository<BorrowingHistory>), typeof(HistoryRepository));
-
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

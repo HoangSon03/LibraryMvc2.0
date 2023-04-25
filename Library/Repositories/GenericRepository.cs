@@ -43,15 +43,5 @@ namespace Library.Repositories
             _dbset.Update(entity);
             await _context.SaveChangesAsync();
         }
-
-        public virtual IEnumerable<T> GetAllById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual Task DeleteMany(IEnumerable<T> entity)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

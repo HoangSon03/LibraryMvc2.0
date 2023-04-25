@@ -6,10 +6,10 @@ namespace Library.Repositories
     {
         Task<T> Get(int id);
         IEnumerable<T> GetAll();
-        IEnumerable<T> GetAllById(int id);
+        //IEnumerable<T> GetAllById(int id);//chỉ detail sử dụng
         Task Create(T entity);
         Task Update(T entity);
         Task Delete(T entity);
-        Task DeleteMany(IEnumerable<T> entity);
+        //Task DeleteMany(IEnumerable<T> entity);//chỉ detail sử dụng
     }
 }
