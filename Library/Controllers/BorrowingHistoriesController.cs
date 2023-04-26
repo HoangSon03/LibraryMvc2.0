@@ -11,36 +11,23 @@ using Library.Repositories;
 using Library.ViewModel;
 using System.Collections.Immutable;
 using Library.UnitOfWork;
+using System.Security.Policy;
 
 namespace Library.Controllers
 {
     public class BorrowingHistoriesController : Controller
     {
-        //private readonly IGenericRepository<BorrowingHistory> _unitOfWork.BorrowingHistories;
-        //private readonly IGenericRepository<Borrower> _unitOfWork.Borrowers;
-        //private readonly IGenericRepository<Item> _unitOfWork.Items;
-        //private readonly IGenericRepository<BorrowingDetail> _unitOfWork.BorrowingDetails;
         private readonly IUnitOfWork _unitOfWork;
 
-        public BorrowingHistoriesController(
-            //IGenericRepository<BorrowingHistory> context,
-            //IGenericRepository<Borrower> borrower,
-            //IGenericRepository<Item> item,
-            //IGenericRepository<BorrowingDetail> detail
-            IUnitOfWork unitOfWork
-            )
+        public BorrowingHistoriesController(IUnitOfWork unitOfWork)
         {
-            //_unitOfWork.BorrowingHistories = context;
-            //_unitOfWork.Borrowers = borrower;
-            //_unitOfWork.Items = item;
-            //_unitOfWork.BorrowingDetails = detail;
-            _unitOfWork=unitOfWork;
+            _unitOfWork = unitOfWork;
         }
 
         // GET: BorrowingHistories
         public async Task<IActionResult> Index()
         {
-            var libraryContext = _unitOfWork.BorrowingHistories.GetAll();
+            var libraryContext =  _unitOfWork.BorrowingHistories.GetAll();
             return View(libraryContext);
         }
 
@@ -67,9 +54,11 @@ namespace Library.Controllers
         public IActionResult Create()
         {
             ViewData["BorrowerId"] = new SelectList(_unitOfWork.Borrowers.GetAll(), "Id", "Name");
-            ViewData["ItemId"] = new SelectList(_unitOfWork.Items.GetAll(), "Id", "Title");
+            var ListItem = _unitOfWork.Items.GetAll();
+            var HistoryVM = new HistoryViewModel();
+            HistoryVM.ListItem = ListItem.ToList();
 
-            return View();
+            return View(HistoryVM);
         }
 
         // POST: BorrowingHistories/Create
@@ -79,46 +68,57 @@ namespace Library.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(HistoryViewModel HistoryVM)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var borrowing = new BorrowingHistory();
-                borrowing.BorrowDate = DateTime.Now;
-                borrowing.BorrowerId = HistoryVM.BorrowerId;
-                borrowing.Status = "Chưa Hoàn Thành";
-                await _unitOfWork.BorrowingHistories.Create(borrowing);
-
-                int CountItem = 0;
-                int CountItemQuantity = 0;
-                decimal TotalCost = 0;
-
-                foreach (int item in HistoryVM.ListItemId!)
+                if (ModelState.IsValid)
                 {
-                    var SelectedItem = await _unitOfWork.Items.Get(item);
-                    SelectedItem.Quantity = SelectedItem.Quantity - 1;
-                    await _unitOfWork.Items.Update(SelectedItem);
+                    var borrowing = new BorrowingHistory();
+                    borrowing.BorrowDate = DateTime.Now;
+                    borrowing.BorrowerId = HistoryVM.BorrowerId;
+                    borrowing.Status = "Chưa Hoàn Thành";
+                    await _unitOfWork.BorrowingHistories.Create(borrowing);
 
-                    var borrowDetail = new BorrowingDetail();
-                    borrowDetail.BorrowingHistoryId = borrowing.Id;
-                    borrowDetail.ItemId = item;
-                    borrowDetail.Quantity = 1;
-                    borrowDetail.Cost = SelectedItem.Price * borrowDetail.Quantity;
-                    borrowDetail.ReturnDate = null;
-                    await _unitOfWork.BorrowingDetails.Create(borrowDetail);
+                    HistoryVM.ListSelectQuantity.RemoveAll(x => x == 0);
+                    int CountItem = 0;
+                    int CountItemQuantity = 0;
+                    decimal TotalCost = 0;
+                    int i = 0;
+                    foreach (int item in HistoryVM.ListSelectItem)
+                    {
+                        var SelectedItem = await _unitOfWork.Items.Get(item);
+                        SelectedItem.Quantity = SelectedItem.Quantity - HistoryVM.ListSelectQuantity[i];
+                        await _unitOfWork.Items.Update(SelectedItem);
 
-                    CountItem++;
-                    CountItemQuantity += borrowDetail.Quantity;
-                    TotalCost += borrowDetail.Cost;
+                        var borrowDetail = new BorrowingDetail();
+                        borrowDetail.BorrowingHistoryId = borrowing.Id;
+                        borrowDetail.ItemId = item;
+                        borrowDetail.Quantity = HistoryVM.ListSelectQuantity[i];
+                        borrowDetail.Cost = SelectedItem.Price * borrowDetail.Quantity;
+                        borrowDetail.ReturnDate = null;
+                        await _unitOfWork.BorrowingDetails.Create(borrowDetail);
+
+                        i++;
+                        //i--;
+                        CountItem++;
+                        CountItemQuantity += borrowDetail.Quantity;
+                        TotalCost += borrowDetail.Cost;
+                    }
+                    borrowing.TotalCost = TotalCost;
+                    borrowing.CountItem = CountItem;
+                    borrowing.CountItemQuantity = CountItemQuantity;
+                    await _unitOfWork.BorrowingHistories.Update(borrowing);
+
+                    await _unitOfWork.Save();
+                    return RedirectToAction(nameof(Index));
                 }
-                borrowing.TotalCost = TotalCost;
-                borrowing.CountItem = CountItem;
-                borrowing.CountItemQuantity = CountItemQuantity;
-                await _unitOfWork.BorrowingHistories.Update(borrowing);
-
-                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception e)
+            {
 
             }
+            var ListItem = _unitOfWork.Items.GetAll();
+            HistoryVM.ListItem = ListItem.ToList();
             ViewData["BorrowerId"] = new SelectList(_unitOfWork.Borrowers.GetAll(), "Id", "Name");
-            ViewData["ItemId"] = new SelectList(_unitOfWork.Items.GetAll(), "Id", "Title");
 
             return View(HistoryVM);
         }
@@ -130,13 +130,13 @@ namespace Library.Controllers
             {
                 return NotFound();
             }
-            
+
             var borrowingHistory = await _unitOfWork.BorrowingHistories.Get(id);
-            var borrowingDetail =  _unitOfWork.BorrowingDetails.GetAllById(id);
+            var borrowingDetail = _unitOfWork.BorrowingDetails.GetAllById(id);
             var DetailVM = new DetailViewModel();
             DetailVM.BorrowingDetail = borrowingDetail.ToList();
             DetailVM.Borrower = borrowingHistory.Borrower;
-            DetailVM.BorrowDate = borrowingHistory.BorrowDate;
+            //DetailVM.BorrowDate = borrowingHistory.BorrowDate;
             DetailVM.BorrowingHistory = borrowingHistory;
             if (DetailVM == null)
             {
@@ -167,13 +167,14 @@ namespace Library.Controllers
                     await _unitOfWork.BorrowingDetails.Update(borrowDetail);
 
                     var SelectedItem = await _unitOfWork.Items.Get(ItemId);
-                    SelectedItem.Quantity = SelectedItem.Quantity + 1;
+                    SelectedItem.Quantity = SelectedItem.Quantity + borrowDetail.Quantity;
                     await _unitOfWork.Items.Update(SelectedItem);
 
                     var borrowingHistory = await _unitOfWork.BorrowingHistories.Get(id);
                     DetailVM.BorrowingDetail = borrowingHistory.BorrowingDetails;
+                    DetailVM.BorrowingHistory = borrowingHistory;
                     DetailVM.Borrower = borrowingHistory.Borrower!;
-                    DetailVM.BorrowDate = borrowingHistory.BorrowDate;
+                    //DetailVM.BorrowDate = borrowingHistory.BorrowDate;
 
                     var borrowingDetail = _unitOfWork.BorrowingDetails.GetAllById(id);
                     int temp = 0;
@@ -189,6 +190,7 @@ namespace Library.Controllers
                         borrowingHistory.Status = "Hoàn Thành";
                         await _unitOfWork.BorrowingHistories.Update(borrowingHistory);
                     }
+                    await _unitOfWork.Save();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -250,6 +252,7 @@ namespace Library.Controllers
             {
                 await _unitOfWork.BorrowingDetails.DeleteMany(detailHistory);
                 await _unitOfWork.BorrowingHistories.Delete(borrowingHistory);
+                await _unitOfWork.Save();
             }
 
             return RedirectToAction(nameof(Index));

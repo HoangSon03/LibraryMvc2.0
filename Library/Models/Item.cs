@@ -27,6 +27,7 @@ namespace Library.Models
         [Required]
         public decimal Price { get; set; }
 
+        [Required]
         public Category Category { get; set; }
 
         public ICollection<BorrowingDetail>? BorrowingDetails { get; set; }

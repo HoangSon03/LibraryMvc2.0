@@ -1,4 +1,4 @@
-﻿@*@model Library.Models.BorrowingHistory*@
+﻿@*
 @model Library.ViewModel.HistoryViewModel
 
 @{
@@ -32,6 +32,92 @@
     <a asp-action="Index">Back to List</a>
 </div>
 
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+*@
+@model Library.ViewModel.HistoryViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>BorrowingHistory</h4>
+<hr />
+<div class="row">
+    <div >
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group" style="width:50%">
+                  <label class="control-label">Borrower :</label>
+                <select asp-for="BorrowerId" class ="form-control" asp-items="ViewBag.BorrowerId"></select>
+            </div>
+            <table  class="table">
+                <thead>
+                    <tr>
+                        <th>Checkbox</th>
+                        <th>Item </th>
+                        <th>Price </th>
+                        <th>Quantity </th>
+                        <th>Borrower Quantity </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.ListItem) {
+                        <tr>
+                            <td>
+                                <input  type="checkbox" name="ListSelectItem" id="cb_@item.Id" value="@item.Id" onchange="onSelect(@item.Id)"/> 
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Title)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Price)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Quantity)
+                            </td>
+                            <td>
+                               <input type="number" id="txt_@item.Id" value="0" onchange="onChangeInput(this.value,@item.Id)" name="ListSelectQuantity" style="opacity:0"/>
+                               <input type="hidden" id="hidden_@item.Id" value="@item.Quantity"/>
+                               <label style="display:none" id="lb_@item.Id" class="control-label">Not enough Items</label>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+                <span asp-validation-for="ListSelectItem" class="text-danger"></span>
+            <div class="form-group">
+                <input  type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<script>
+    function onSelect(id){
+        if(document.getElementById("cb_"+id).checked){
+            document.getElementById("txt_"+id).value=1;
+            document.getElementById("txt_"+id).style.opacity=1;
+        }else{
+            document.getElementById("txt_"+id).style.opacity=0;
+            document.getElementById("txt_"+id).value=0;
+            document.getElementById("lb_"+id).style.display="none";
+        }
+    }
+    function onChangeInput(value,id){
+        if(parseInt(document.getElementById("hidden_"+id).value) <= value ){
+            document.getElementById("lb_"+id).style.display="block";
+            document.getElementById("txt_"+id).value = document.getElementById("hidden_"+id).value
+        }else{
+            document.getElementById("lb_"+id).style.display="none";
+        }
+    }
+</script>
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

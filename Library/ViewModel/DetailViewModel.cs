@@ -11,7 +11,7 @@ namespace Library.ViewModel
         public int DetailId { get; set; }
         public int ItemId { get; set; }
         public DateTime? ReturnDate { get; set; }
-        public DateTime? BorrowDate { get; set; }
+        //public DateTime? BorrowDate { get; set; }
 
     }
 }

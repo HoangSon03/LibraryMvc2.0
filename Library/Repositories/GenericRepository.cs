@@ -27,21 +27,17 @@ namespace Library.Repositories
 
         public async Task Create(T entity)
         {
-
             _dbset.Add(entity);
-            await _context.SaveChangesAsync();
         }
 
         public async Task Delete(T entity)
         {
             _dbset.Remove(entity);
-            await _context.SaveChangesAsync();
         }
 
         public async Task Update(T entity)
         {
             _dbset.Update(entity);
-            await _context.SaveChangesAsync();
         }
     }
 }

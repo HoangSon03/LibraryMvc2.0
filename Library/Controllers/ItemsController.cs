@@ -101,7 +101,8 @@ namespace Library.Controllers
         {
             if (ModelState.IsValid)
             {
-               await _unitOfWork.Items.Create(item);
+                await _unitOfWork.Items.Create(item);
+                await _unitOfWork.Save();
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.CategoryList = new SelectList(Enum.GetValues(typeof(Category)));
@@ -140,7 +141,9 @@ namespace Library.Controllers
             {
                 try
                 {
-                   await _unitOfWork.Items.Update(item);
+                    await _unitOfWork.Items.Update(item);
+                    await _unitOfWork.Save();
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -190,6 +193,7 @@ namespace Library.Controllers
             if (item != null)
             {
                 await _unitOfWork.Items.Delete(item);
+                await _unitOfWork.Save();
             }
             return RedirectToAction(nameof(Index));
         }

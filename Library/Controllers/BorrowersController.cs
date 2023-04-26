@@ -85,6 +85,7 @@ namespace Library.Controllers
             if (ModelState.IsValid)
             {
                 await _unitOfWork.Borrowers.Create(borrower);
+                await _unitOfWork.Save();
                 return RedirectToAction(nameof(Index));
             }
             return View(borrower);
@@ -123,6 +124,7 @@ namespace Library.Controllers
                 try
                 {
                     await _unitOfWork.Borrowers.Update(borrower);
+                    await _unitOfWork.Save();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -170,6 +172,7 @@ namespace Library.Controllers
             if (borrower != null)
             {
                 await _unitOfWork.Borrowers.Delete(borrower);
+                await _unitOfWork.Save();
             }
             return RedirectToAction(nameof(Index));
         }

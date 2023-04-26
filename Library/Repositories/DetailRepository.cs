@@ -20,7 +20,6 @@ namespace Library.Repositories
         public  async Task DeleteMany(IEnumerable<BorrowingDetail> entity)
         {
             _dbset.RemoveRange(entity);
-            await _context.SaveChangesAsync();
         }
 
         public  IEnumerable<BorrowingDetail> GetAllById(int id)
