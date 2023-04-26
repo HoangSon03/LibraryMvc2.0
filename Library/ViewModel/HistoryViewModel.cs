@@ -8,8 +8,8 @@ namespace Library.ViewModel
     {
         public List<Item>? ListItem { get; set; }
         public List<int>? ListSelectItem { get; set; }
+        public List<int>? ListSelectQuantity { get; set; }
 
         public int BorrowerId { get; set; }
-        public int BorrowQuantity { get; set; }
     }
 }

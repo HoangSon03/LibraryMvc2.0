@@ -29,6 +29,6 @@ namespace Library.Models
 
         public Category Category { get; set; }
 
-        public ICollection<BorrowingDetail> BorrowingDetails { get; set; }
+        public ICollection<BorrowingDetail>? BorrowingDetails { get; set; }
     }
 }
